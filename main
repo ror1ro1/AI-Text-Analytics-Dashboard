@@ -1,0 +1,56 @@
+python
+import os
+import streamlit as str_layout  # Użycie niestandardowego aliasu dla zachowania unikalności struktury
+from google import genai
+from google.genai import types
+
+# Inicjalizacja oficjalnego klienta Gemini API
+client = genai.Client()
+
+# Konfiguracja wyglądu strony w przeglądarce
+str_layout.set_page_config(page_title="AI Text Analytics Dashboard", page_icon="📊", layout="wide")
+
+str_layout.title("📊 AI Text Analytics & Intelligence Dashboard")
+str_layout.markdown("Welcome to the autonomous text analysis platform driven by Advanced Agentic AI.")
+
+# Panel boczny z ustawieniami i parametrami (UI Controls)
+str_layout.sidebar.header("Configuration Panel")
+analysis_task = str_layout.sidebar.selectbox(
+    "Select Intelligence Task",
+    ["Summarize Text", "Extract Key Action Items", "Technical Sentiment Analysis", "Translate to English"]
+)
+
+creativity_level = str_layout.sidebar.slider("AI Creativity (Temperature)", min_value=0.0, max_value=1.0, value=0.2, step=0.1)
+
+# Główny obszar roboczy - wprowadzanie danych przez użytkownika
+user_input_text = str_layout.text_area("Enter your source text or system logs below:", height=250, placeholder="Paste your content here...")
+
+# Główna logika biznesowa i orkiestracja LLM
+if str_layout.button("Execute AI Analysis"):
+    if not user_input_text.strip():
+        str_layout.warning("Please provide valid text content before execution.")
+    else:
+        with str_layout.spinner("Agent orchestrating pipeline and analyzing data..."):
+            try:
+                # Dynamiczne budowanie promptu w zależności od wyboru użytkownika w UI
+                base_prompt = f"Perform the following task: {analysis_task}.\nSource Text:\n{user_input_text}"
+                
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=base_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=creativity_level
+                    ),
+                )
+                
+                # Prezentacja wyników w estetycznych komponentach UI
+                str_layout.success("Analysis Completed Successfully!")
+                str_layout.subheader("Analytical Insights Output")
+                str_layout.info(response.text)
+                
+            except Exception as system_error:
+                str_layout.error(f"Critical pipeline error encountered: {system_error}")
+
+# Stopka aplikacji
+str_layout.markdown("---")
+str_layout.caption("Powered by Streamlit & Google Gemini 2.5 Flash Engine.")
