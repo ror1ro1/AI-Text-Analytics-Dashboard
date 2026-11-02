@@ -1,4 +1,3 @@
-
 import os
 import streamlit as str_layout  # Użycie niestandardowego aliasu dla zachowania unikalności struktury
 from google import genai
